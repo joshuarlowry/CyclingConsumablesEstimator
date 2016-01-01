@@ -1,0 +1,199 @@
+<html>
+<head>
+    <title>Energy Riders Training: Consumables Estimator</title>
+    <style>
+        div {
+            width: 800px;
+            clear: both;
+            margin: 15px auto;
+            border: 1px solid red;
+        }
+
+            div[id=inputs] label {
+                text-align: right;
+                clear: both;
+                float: left;
+                margin: 5px;
+                width: 100px;
+            }
+
+            div[id=inputs] input {
+                float: left;
+                width: 100px;
+                margin: 5px;
+            }
+
+            div[id=consumablesCost] input {
+                width: 100px;
+                text-align: center;
+                border-radius: 10px;
+                background-color: palegreen;
+            }
+
+            div[id=tweaks] input {
+                width: 100px;
+                text-align: center;
+                border-radius: 10px;
+                background-color: palegreen;
+            }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            updateCalculations();
+            $('input:radio').change(function () {
+                
+                $("#TEST").text(weatherSelected);
+            });
+            $("input").on('input', function () {
+                $("#TEST").text($("#TEST").text()+$(this).text()+$(this).val()+"\n");
+                
+                updateCalculations();
+                
+                //update calcs
+                //update view
+            });
+        });
+        function updateCalculations() {
+            var weatherSelected = $("input[type='radio'][name='weather']:checked").val();
+
+            waterCount.text = waterCalc(riders.value, warmwater.value, stops.value, (miles.value / avgMiles.value));
+        };
+        function waterCalc(riders, waterMod, stops, mileageMod) {
+            return Math.floor(Math.round(riders*waterMod*mileageMod/128+.5)/stops+1)*stops;
+            //return Math.round(riders*waterMod*mileageMod/128/stops+1)*stops;
+        };
+
+
+
+
+    </script>
+</head>
+<body>
+    <div>
+        <h1>Consumables Calculator</h1>
+        <div id="inputs">
+            <h2>Event Configuration</h2>
+            <label for="riders">Riders:</label><input id="riders" type="number" min="25" max="350" value="150" />
+            <label for="stops">Stops:</label><input id="stops" type="number" min="1" max="10" value="4" />
+            <label for="miles">Max Miles:</label><input id="miles" type="number" min="1" max="100" value="40" />
+            <div id="weather">
+                <h3>Weather Forecast</h3>
+                <label for="cold">Cold</label><input type="radio" value="cold" name="weather" id="weatherRadio" />
+                <label for="cool">Cool</label><input type="radio" value="cool" name="weather" id="weatherRadio" checked="checked" />
+                <label for="warm">Warm</label><input type="radio" value="warm" name="weather" id="weatherRadio" />
+                <label for="hot">Hot</label><input type="radio" value="hot" name="weather" id="weatherRadio" />
+            </div>
+        </div>
+
+        <div id="tweaks">
+            <h2>Consumables Modifiers</h2>
+            <p>Water modifier is in ounces per rider.</p>
+            <p>Ice modifier is in bags per 128 riders.</p>
+            <table>
+                <tr><td></td><th>Cold (oz per rider)</th><th>Cool (oz per rider)</th><th>Warm (oz per rider)</th><th>Hot (oz per rider)</th><th>Cost</th><th>Unit</th></tr>
+                <tr>
+                    <th>Water</th>
+                    <td><input type="number" min="12" max="40" id="coldwater" value="12" /></td>
+                    <td><input type="number" min="12" max="40" id="coolwater" value="16" /></td>
+                    <td><input type="number" min="12" max="40" id="warmwater" value="20" /></td>
+                    <td><input type="number" min="12" max="40" id="hotwater" value="32" /></td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="waterCost" value="0.89" /></td>
+                    <td>Gallon</td>
+                </tr>
+                <tr>
+                    <th>Ice</th>
+                    <td><input type="number" step=".1" min="0" max="3" id="coldice" value="0" /></td>
+                    <td><input type="number" step=".1" min="0" max="3" id="coolice" value="1" /></td>
+                    <td><input type="number" step=".1" min="0" max="3" id="warmice" value="1.5" /></td>
+                    <td><input type="number" step=".1" min="0" max="3" id="hotice" value="2" /></td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="iceCost" value="2.00" /></td>
+                    <td>10 Pound Bag</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr><th>Item</th><th>Cost</th><th>Unit</th><th>Modifier</th></tr>
+                <tr>
+                    <td>GatorAde</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="gatorAdeCost" value="5.00" /></td>
+                    <td>2 Gallon Package</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="gatorAdeMod" value="0.05" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>Cookies</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="cookieCost" value="3.00" /></td>
+                    <td>12 Ounce Box</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="cookieMod" value="0.05" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>Trail Mix</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="trailMixCost" value="6.00" /></td>
+                    <td>Pound</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="trailMixMod" value="0.05" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>Crackers</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="crackerCost" value="2.50" /></td>
+                    <td>12 Ounce Box</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="crackerMod" value="0.05" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>Pretzels</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="pretzelCost" value="3.50" /></td>
+                    <td>1 Pound Bag</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="pretzelMod" value="0.05" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>Oranges</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="orangeCost" value="2.00" /></td>
+                    <td>Pound</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="orangeMod" value="0.1" /><span>per 10 riders</span></td>
+                </tr>
+                <tr>
+                    <td>Bananas</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="bananaCost" value="0.50" /></td>
+                    <td>Pound</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="bananaMod" value="0.25" /><span>per rider</span></td>
+                </tr>
+                <tr>
+                    <td>3oz Plastic Cups (trailmix)</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="cupCost" value="2.00" /></td>
+                    <td>100 Cup Package</td>
+                    <td><input type="number" step=".01" min="0" max="40" id="Mod" value="0.8" /><span>Trail Mix Ounces per Cup</span></td>
+                </tr>
+            </table>
+
+            <h2>Advanced Modifiers</h2>
+            <p>These are advanced modifiers for tweaking the output of this calculator.</p>
+            <label for="avgMiles">Avg Miles:</label><input type="number" min="0" max="100" id="avgMiles" value="30" />
+            
+        </div>
+
+        <div id="coldRide">
+            <h2>Shopping List</h2>
+            <table>
+                <tr><th>Item</th><th>Quantity</th><th>Total Cost</th><th>Unit</th></tr>
+                <tr><td>Water</td><td><a id="waterCount"/></td><td><span>$</span><a id="waterCostTotal" /></td><td>Gallon</td></tr>
+                <tr><td>Ice</td><td><span>$</span><a id="iceCostTotal" /></td><td>10 Pound Bag</td></tr>
+                <tr><td>GatorAde*</td><td><span>$</span><a id="gatorAdeCostTotal" /></td><td>2 Gallon Package</td></tr>
+                <tr><td>Cookies</td><td><span>$</span><a id="cookieCostTotal" /></td><td>12 Ounce Box</td></tr>
+                <tr><td>Trail Mix</td><td><span>$</span><a id="trailMixCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>Crackers</td><td><span>$</span><a id="crackerCostTotal" /></td><td>12 Ounce Box</td></tr>
+                <tr><td>Pretzels</td><td><span>$</span><a id="pretzelCostTotal" /></td><td>1 Pound Bag</td></tr>
+                <tr><td>Oranges</td><td><span>$</span><a id="orangeCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>Bananas</td><td><span>$</span><a id="bananaCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>3oz Plastic Cups</td><td><span>$</span><a id="cupCostTotal"/></td><td>100 Cup Package</td></tr>
+            </table>
+            <p>Divide GatorAde quantity in 3 if using 24 quart "Cans".</p>
+        </div>
+
+
+        <div>
+            <h2>Test area</h2>
+            <a id="TEST" />
+        </div>
+    </div>
+</body>
+</html>
