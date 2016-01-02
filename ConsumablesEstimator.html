@@ -44,10 +44,12 @@
             updateCalculations();
             $('input:radio').change(function () {
                 
-                $("#TEST").text(weatherSelected);
+                //var weatherSelected = $("input[type='radio'][name='weather']:checked").val();
+
+                updateCalculations();
             });
             $("input").on('input', function () {
-                $("#TEST").text($("#TEST").text()+$(this).text()+$(this).val()+"\n");
+                //$("#TEST").text($("#TEST").text() + $(this).text() + $(this).val() + "\n");
                 
                 updateCalculations();
                 
@@ -56,15 +58,98 @@
             });
         });
         function updateCalculations() {
+            //$("#TEST").text($("#TEST").text() + "Updating Values");
             var weatherSelected = $("input[type='radio'][name='weather']:checked").val();
+            var waterValue = getWaterValue(weatherSelected);
+            var iceValue = getIceValue(weatherSelected);
+            
+            var mileageMod = miles.value / avgMiles.value;
 
-            waterCount.text = waterCalc(riders.value, warmwater.value, stops.value, (miles.value / avgMiles.value));
+            $("#TEST").text(" icevalue: " + iceValue + " watervalue: " + waterValue + " weather: " + weatherSelected);
+            waterCount.text = waterCalc(riders.value, waterValue, stops.value, mileageMod);
+            waterCostTotal.text = waterCount.text * waterCost.value;
+            iceCount.text = iceCalc(waterCount.text, iceValue, stops.value);
+            iceCostTotal.text = iceCount.text * iceCost.value;
+            gatoradeCount.text = gatoradeCalc(waterCount.text, stops.value);
+            gatoradeCostTotal.text = gatoradeCount.text * gatoradeCost.value;
+            cookieCount.text = foodCalc(riders.value, cookieMod.value, mileageMod, stops.value);
+            cookieCostTotal.text = cookieCount.text * cookieCost.value;
+            trailmixCount.text = foodCalc(riders.value, trailMixMod.value, mileageMod, stops.value);
+            trailmixCostTotal.text = trailmixCount.text * trailmixCost.value;
+            crackerCount.text = foodCalc(riders.value, crackerMod.value, mileageMod, stops.value);
+            crackerCostTotal.text = crackerCount.text * crackerCost.value;
+            pretzelCount.text = foodCalc(riders.value, pretzelMod.value, mileageMod, stops.value);
+            pretzelCostTotal.text = pretzelCount.text * pretzelCost.value;
+            orangeCount.text = foodCalc(riders.value, orangeMod.value, mileageMod, stops.value);
+            orangeCostTotal.text = orangeCount.text * orangeCost.value;
+            bananaCount.text = foodCalc(riders.value, bananaMod.value, mileageMod, stops.value);
+            bananaCostTotal.text = bananaCount.text * bananaCost.value;
+            cupCount.text = cupCalc(trailmixCount.text, cupMod.value);
+            cupCostTotal.text = cupCount.text * cupCost.value;
+            
+            consumablesCostTotal.innerText = Math.round((waterCostTotal.text + iceCostTotal.text + gatoradeCostTotal.text + cookieCostTotal.text + trailmixCostTotal.text + crackerCostTotal.text + pretzelCostTotal.text + orangeCostTotal.text + bananaCostTotal.text + cupCostTotal.text)*100)/100;
+            
         };
+        function getWaterValue(weatherSelected) {
+            var waterValue = 0;
+            switch (weatherSelected) {
+                case 'cold':
+                    waterValue = coldwater.value;
+                    break;
+                case 'cool':
+                    waterValue = coolwater.value;
+                    break;
+                case 'warm':
+                    waterValue = warmwater.value;
+                    break;
+                case 'hot':
+                    waterValue = hotwater.value;
+            }
+            return waterValue;
+        }
+        function getIceValue(weatherSelected) {
+            var iceValue = 0;
+            switch (weatherSelected) {
+                case 'cold':
+                    iceValue = coldice.value;
+                    break;
+                case 'cool':
+                    iceValue = coolice.value;
+                    break;
+                case 'warm':
+                    iceValue = warmice.value;
+                    break;
+                case 'hot':
+                    iceValue = hotice.value;
+            }
+            return iceValue;
+        }
         function waterCalc(riders, waterMod, stops, mileageMod) {
-            return Math.floor(Math.round(riders*waterMod*mileageMod/128+.5)/stops+1)*stops;
-            //return Math.round(riders*waterMod*mileageMod/128/stops+1)*stops;
+            return Math.floor(Math.round(riders * waterMod * mileageMod / 128 + .5) / stops + 1) * stops;
         };
-
+        function iceCalc(waterValue, iceMod, stops) {
+            if (iceMod == 0) {
+                return 0;
+            }
+            else {
+                return Math.floor(Math.round(2 * (waterValue / 10) * iceMod) / stops + 1) * stops;
+            }
+        }
+        function gatoradeCalc(waterValue, stops)
+        {
+            return Math.floor(Math.round(waterValue*0.5*0.67)/stops)*stops+1
+            //(INT(ROUND(C$15*0.5*0.67,0)/Rest_Stops))*Rest_Stops+1
+        }
+        function foodCalc(riders, consumableMod, mileageMod, stops)
+        {
+            //INT(ROUND(Riders*H18*(Ride_Distance/Standard_Distance)+0.5,0)/Rest_Stops)+1)*Rest_Stops
+            return Math.floor(Math.round(riders*consumableMod*mileageMod)/stops + 1) * stops;
+        }
+        function cupCalc(trailmixValue, cupMod)
+        {
+            //INT(ROUND($C19*16/(100*$H$24)+0.49,0))
+            return Math.floor(Math.round(trailmixValue * 16 / (100 * cupMod) + 0.49));
+        }
 
 
 
@@ -86,7 +171,10 @@
                 <label for="hot">Hot</label><input type="radio" value="hot" name="weather" id="weatherRadio" />
             </div>
         </div>
-
+        <div>
+            <h2>Test area</h2>
+            <a id="TEST" />
+        </div>
         <div id="tweaks">
             <h2>Consumables Modifiers</h2>
             <p>Water modifier is in ounces per rider.</p>
@@ -116,8 +204,8 @@
             <table>
                 <tr><th>Item</th><th>Cost</th><th>Unit</th><th>Modifier</th></tr>
                 <tr>
-                    <td>GatorAde</td>
-                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="gatorAdeCost" value="5.00" /></td>
+                    <td>GATORADE</td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="gatoradeCost" value="5.00" /></td>
                     <td>2 Gallon Package</td>
                     <td><input type="number" step=".01" min="0" max="40" id="gatorAdeMod" value="0.05" /><span>per rider</span></td>
                 </tr>
@@ -129,7 +217,7 @@
                 </tr>
                 <tr>
                     <td>Trail Mix</td>
-                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="trailMixCost" value="6.00" /></td>
+                    <td><span>$</span><input type="number" step=".01" min="0" max="40" id="trailmixCost" value="6.00" /></td>
                     <td>Pound</td>
                     <td><input type="number" step=".01" min="0" max="40" id="trailMixMod" value="0.05" /><span>per rider</span></td>
                 </tr>
@@ -161,7 +249,7 @@
                     <td>3oz Plastic Cups (trailmix)</td>
                     <td><span>$</span><input type="number" step=".01" min="0" max="40" id="cupCost" value="2.00" /></td>
                     <td>100 Cup Package</td>
-                    <td><input type="number" step=".01" min="0" max="40" id="Mod" value="0.8" /><span>Trail Mix Ounces per Cup</span></td>
+                    <td><input type="number" step=".01" min="0" max="40" id="cupMod" value="0.8" /><span>Trail Mix Ounces per Cup</span></td>
                 </tr>
             </table>
 
@@ -171,29 +259,27 @@
             
         </div>
 
-        <div id="coldRide">
+        <div id="shoppingList">
             <h2>Shopping List</h2>
             <table>
                 <tr><th>Item</th><th>Quantity</th><th>Total Cost</th><th>Unit</th></tr>
                 <tr><td>Water</td><td><a id="waterCount"/></td><td><span>$</span><a id="waterCostTotal" /></td><td>Gallon</td></tr>
-                <tr><td>Ice</td><td><span>$</span><a id="iceCostTotal" /></td><td>10 Pound Bag</td></tr>
-                <tr><td>GatorAde*</td><td><span>$</span><a id="gatorAdeCostTotal" /></td><td>2 Gallon Package</td></tr>
-                <tr><td>Cookies</td><td><span>$</span><a id="cookieCostTotal" /></td><td>12 Ounce Box</td></tr>
-                <tr><td>Trail Mix</td><td><span>$</span><a id="trailMixCostTotal" /></td><td>Pound</td></tr>
-                <tr><td>Crackers</td><td><span>$</span><a id="crackerCostTotal" /></td><td>12 Ounce Box</td></tr>
-                <tr><td>Pretzels</td><td><span>$</span><a id="pretzelCostTotal" /></td><td>1 Pound Bag</td></tr>
-                <tr><td>Oranges</td><td><span>$</span><a id="orangeCostTotal" /></td><td>Pound</td></tr>
-                <tr><td>Bananas</td><td><span>$</span><a id="bananaCostTotal" /></td><td>Pound</td></tr>
-                <tr><td>3oz Plastic Cups</td><td><span>$</span><a id="cupCostTotal"/></td><td>100 Cup Package</td></tr>
+                <tr><td>Ice</td><td><a id="iceCount" /></td><td><span>$</span><a id="iceCostTotal" /></td><td>10 Pound Bag</td></tr>
+                <tr><td>GATORADE*</td><td><a id="gatoradeCount" /></td><td><span>$</span><a id="gatoradeCostTotal" /></td><td>2 Gallon Package</td></tr>
+                <tr><td>Cookies</td><td><a id="cookieCount" /></td><td><span>$</span><a id="cookieCostTotal" /></td><td>12 Ounce Box</td></tr>
+                <tr><td>Trail Mix</td><td><a id="trailmixCount" /></td><td><span>$</span><a id="trailmixCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>Crackers</td><td><a id="crackerCount" /></td><td><span>$</span><a id="crackerCostTotal" /></td><td>12 Ounce Box</td></tr>
+                <tr><td>Pretzels</td><td><a id="pretzelCount" /></td><td><span>$</span><a id="pretzelCostTotal" /></td><td>1 Pound Bag</td></tr>
+                <tr><td>Oranges</td><td><a id="orangeCount" /></td><td><span>$</span><a id="orangeCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>Bananas</td><td><a id="bananaCount" /></td><td><span>$</span><a id="bananaCostTotal" /></td><td>Pound</td></tr>
+                <tr><td>3oz Plastic Cups</td><td><a id="cupCount" /></td><td><span>$</span><a id="cupCostTotal"/></td><td>100 Cup Package</td></tr>
             </table>
-            <p>Divide GatorAde quantity in 3 if using 24 quart "Cans".</p>
+            <p>Training Ride Consumables Cost: <span>$</span><b id="consumablesCostTotal">0.00</b></p>
+            <p>Divide GATORADE quantity in 3 if using 24 quart "Cans".</p>
         </div>
 
 
-        <div>
-            <h2>Test area</h2>
-            <a id="TEST" />
-        </div>
+        
     </div>
 </body>
 </html>
