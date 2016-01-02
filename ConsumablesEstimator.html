@@ -6,35 +6,42 @@
             width: 800px;
             clear: both;
             margin: 15px auto;
-            border: 1px solid red;
         }
 
-            div[id=inputs] label {
-                text-align: right;
+             div[id=logistics] label {
+                text-align: left;
                 clear: both;
                 float: left;
                 margin: 5px;
                 width: 100px;
             }
 
-            div[id=inputs] input {
+            div[id=logistics] input {
+                clear: left;
                 float: left;
                 width: 100px;
+                height: 25px;
                 margin: 5px;
             }
 
-            div[id=consumablesCost] input {
+           div[id=weather] label {
+                margin: 5px;
                 width: 100px;
-                text-align: center;
-                border-radius: 10px;
-                background-color: palegreen;
             }
+
+            div[id=weather] input {
+                width: 100px;
+                height: 25px;
+                margin: 5px;
+            }
+
 
             div[id=tweaks] input {
                 width: 100px;
+                height: 25px;
                 text-align: center;
-                border-radius: 10px;
-                background-color: palegreen;
+                border-radius: 5px;
+                background-color: #d0f0c0;
             }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
@@ -43,29 +50,19 @@
 
             updateCalculations();
             $('input:radio').change(function () {
-                
-                //var weatherSelected = $("input[type='radio'][name='weather']:checked").val();
-
                 updateCalculations();
             });
             $("input").on('input', function () {
-                //$("#TEST").text($("#TEST").text() + $(this).text() + $(this).val() + "\n");
-                
                 updateCalculations();
-                
-                //update calcs
-                //update view
             });
         });
         function updateCalculations() {
-            //$("#TEST").text($("#TEST").text() + "Updating Values");
             var weatherSelected = $("input[type='radio'][name='weather']:checked").val();
             var waterValue = getWaterValue(weatherSelected);
             var iceValue = getIceValue(weatherSelected);
             
             var mileageMod = miles.value / avgMiles.value;
 
-            $("#TEST").text(" icevalue: " + iceValue + " watervalue: " + waterValue + " weather: " + weatherSelected);
             waterCount.text = waterCalc(riders.value, waterValue, stops.value, mileageMod);
             waterCostTotal.text = waterCount.text * waterCost.value;
             iceCount.text = iceCalc(waterCount.text, iceValue, stops.value);
@@ -138,16 +135,13 @@
         function gatoradeCalc(waterValue, stops)
         {
             return Math.floor(Math.round(waterValue*0.5*0.67)/stops)*stops+1
-            //(INT(ROUND(C$15*0.5*0.67,0)/Rest_Stops))*Rest_Stops+1
         }
         function foodCalc(riders, consumableMod, mileageMod, stops)
         {
-            //INT(ROUND(Riders*H18*(Ride_Distance/Standard_Distance)+0.5,0)/Rest_Stops)+1)*Rest_Stops
             return Math.floor(Math.round(riders*consumableMod*mileageMod)/stops + 1) * stops;
         }
         function cupCalc(trailmixValue, cupMod)
         {
-            //INT(ROUND($C19*16/(100*$H$24)+0.49,0))
             return Math.floor(Math.round(trailmixValue * 16 / (100 * cupMod) + 0.49));
         }
 
@@ -158,25 +152,26 @@
 <body>
     <div>
         <h1>Consumables Calculator</h1>
-        <div id="inputs">
+        <div>
             <h2>Event Configuration</h2>
-            <label for="riders">Riders:</label><input id="riders" type="number" min="25" max="350" value="150" />
-            <label for="stops">Stops:</label><input id="stops" type="number" min="1" max="10" value="4" />
-            <label for="miles">Max Miles:</label><input id="miles" type="number" min="1" max="100" value="40" />
+            
+            <div id="logistics">
+                <h3>Logistics</h3>
+                <label for="riders">Riders:</label><input id="riders" type="number" min="25" max="350" value="150" />
+                <label for="stops">Stops:</label><input id="stops" type="number" min="1" max="10" value="4" />
+                <label for="miles">Max Miles:</label><input id="miles" type="number" min="1" max="100" value="40" />
+            </div>
             <div id="weather">
-                <h3>Weather Forecast</h3>
+                <h3>Weather</h3>
                 <label for="cold">Cold</label><input type="radio" value="cold" name="weather" id="weatherRadio" />
                 <label for="cool">Cool</label><input type="radio" value="cool" name="weather" id="weatherRadio" checked="checked" />
                 <label for="warm">Warm</label><input type="radio" value="warm" name="weather" id="weatherRadio" />
                 <label for="hot">Hot</label><input type="radio" value="hot" name="weather" id="weatherRadio" />
             </div>
         </div>
-        <div>
-            <h2>Test area</h2>
-            <a id="TEST" />
-        </div>
         <div id="tweaks">
             <h2>Consumables Modifiers</h2>
+            <h3>Water and Ice</h3>
             <p>Water modifier is in ounces per rider.</p>
             <p>Ice modifier is in bags per 128 riders.</p>
             <table>
@@ -200,7 +195,7 @@
                     <td>10 Pound Bag</td>
                 </tr>
             </table>
-
+            <h3>Food and Other</h3>
             <table>
                 <tr><th>Item</th><th>Cost</th><th>Unit</th><th>Modifier</th></tr>
                 <tr>
