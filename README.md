@@ -21,7 +21,7 @@ A single-page web tool that calculates the **quantities and estimated costs** of
 ## 1. Quick Start
 
 1. Clone or download the repository.
-2. Open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari).
+2. Open `index.html` in any modern browser (Chrome, Firefox, Edge, Safari). No local server or build step is required—the page is fully static.
 3. Fill in the **Event Configuration** fields (number of riders, stops, maximum mileage, weather).
 4. Optionally fine-tune cost and modifier values in **Advanced Modifications**.
 5. The **Shopping List** updates instantly with required quantities and cost estimates.
@@ -32,13 +32,13 @@ No build step or external dependencies are required; everything runs client-side
 
 ## 2. How It Works
 
-The estimator consists of:
+The estimator now combines:
 
-* **HTML controls** that collect event parameters (riders, weather etc.) and cost/modifier overrides.
-* A lightweight **JavaScript engine** (≈100 LOC) that recalculates totals whenever an input changes.
-* **jQuery 1.8** is loaded from a CDN purely for concise event-handling.
+* **Semantic HTML5 controls** styled with **Bootstrap 5** (via CDN) and the Inter typeface for a polished, responsive layout.
+* A lightweight **vanilla JavaScript module** (≈150 LOC) that recalculates totals whenever an input changes using modern DOM APIs and `Intl.NumberFormat` for presentation.
+* The original set of pure calculation helpers exported to the global scope for reuse.
 
-The core logic lives in eight pure functions (see API section) that transform numeric inputs into consumable quantities.
+All computations still live in standalone functions (see API section) that transform numeric inputs into consumable quantities.
 
 ---
 
@@ -56,9 +56,9 @@ Re-reads every `<input>` element, calls the calculator helpers below, and writes
 
 It is bound to:
 
-* `document.ready` (initial render)
+* `DOMContentLoaded` (initial render inside an IIFE)
+* `input` on every numeric/text field
 * `change` on every radio button
-* `input` on every other input element
 
 > Tip: Call this function after programmatically changing any input values to sync the UI.
 
@@ -104,9 +104,9 @@ flowchart LR
     F --> G[Shopping List Table]
 ```
 
-* **Input elements** store raw numbers.
+* **Bootstrap form controls** capture logistics, weather, and tweak inputs.
 * `updateCalculations()` gathers values → calls helpers.
-* **Computed results** are injected into `<a>` elements in the Shopping List table.
+* **Computed results** are injected into `<span>` elements inside the Shopping List card.
 
 ---
 
@@ -161,8 +161,8 @@ Because each helper is a pure function, you can:
    console.log(`Buy ${gallons} gallons of water`);
    </script>
    ```
-3. **Replace jQuery** with vanilla JS by mapping the same event bindings.
-4. **Internationalize** costs/units by updating labels and rounding logic.
+3. **Adjust formatting** (currency, quantity) by customizing the shared `Intl.NumberFormat` instances.
+4. **Internationalize** costs/units by updating labels and rounding logic or swapping to locale-specific formatters.
 
 ---
 
